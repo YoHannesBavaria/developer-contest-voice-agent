@@ -24,6 +24,7 @@ export interface VoiceTurnResult {
   captured: QualificationDraft;
   missingFields: Array<keyof LeadQualificationInput>;
   completed: boolean;
+  agentResponseLatencyMs?: number;
   booking?: BookingResult;
   summary?: CallSummary;
 }
@@ -62,6 +63,7 @@ export class VoiceConversationService {
   }
 
   public start(callId: string, profile: VoiceLeadProfile = {}): VoiceTurnResult {
+    const startedAtMs = Date.now();
     const session = this.getOrCreateSession(callId);
     session.profile = { ...session.profile, ...profile };
     session.started = true;
@@ -80,16 +82,20 @@ export class VoiceConversationService {
       timestamp: new Date().toISOString()
     });
 
+    const latencyMs = Date.now() - startedAtMs;
+    this.store.addVoiceLatency(callId, latencyMs);
     return {
       callId,
       agentUtterance: opening,
       captured: session.draft,
       missingFields: missing,
-      completed: false
+      completed: false,
+      agentResponseLatencyMs: latencyMs
     };
   }
 
   public async next(callId: string, leadUtterance: string, profile: VoiceLeadProfile = {}, preferredSlotIso?: string): Promise<VoiceTurnResult> {
+    const startedAtMs = Date.now();
     const session = this.getOrCreateSession(callId);
     session.profile = { ...session.profile, ...profile };
 
@@ -104,12 +110,15 @@ export class VoiceConversationService {
         text: doneMessage,
         timestamp: new Date().toISOString()
       });
+      const latencyMs = Date.now() - startedAtMs;
+      this.store.addVoiceLatency(callId, latencyMs);
       return {
         callId,
         agentUtterance: doneMessage,
         captured: session.draft,
         missingFields: [],
-        completed: true
+        completed: true,
+        agentResponseLatencyMs: latencyMs
       };
     }
 
@@ -132,12 +141,15 @@ export class VoiceConversationService {
         text: followUp,
         timestamp: new Date().toISOString()
       });
+      const latencyMs = Date.now() - startedAtMs;
+      this.store.addVoiceLatency(callId, latencyMs);
       return {
         callId,
         agentUtterance: followUp,
         captured: session.draft,
         missingFields: missing,
-        completed: false
+        completed: false,
+        agentResponseLatencyMs: latencyMs
       };
     }
 
@@ -177,12 +189,15 @@ export class VoiceConversationService {
       timestamp: new Date().toISOString()
     });
 
+    const latencyMs = Date.now() - startedAtMs;
+    this.store.addVoiceLatency(callId, latencyMs);
     return {
       callId,
       agentUtterance: closing,
       captured: qualification,
       missingFields: [],
       completed: true,
+      agentResponseLatencyMs: latencyMs,
       booking,
       summary
     };
@@ -206,4 +221,3 @@ export class VoiceConversationService {
     return created;
   }
 }
-

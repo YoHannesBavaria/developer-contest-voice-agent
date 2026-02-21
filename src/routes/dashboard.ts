@@ -33,6 +33,7 @@ export async function registerDashboardRoutes(app: FastifyInstance, store: InMem
     <div class="grid">
       <section class="card"><div>Conversion Rate</div><div class="metric" id="conversion">-</div></section>
       <section class="card"><div>Durchschnittsdauer</div><div class="metric" id="duration">-</div></section>
+      <section class="card"><div>Voice-Latenz (avg / p95)</div><div id="latency">-</div><div id="latencyTarget">-</div></section>
       <section class="card"><div>Lead-Score A/B/C</div><div id="scores">-</div></section>
       <section class="card"><div>Drop-off Points</div><ul id="dropoffs"></ul></section>
     </div>
@@ -43,6 +44,8 @@ export async function registerDashboardRoutes(app: FastifyInstance, store: InMem
       const data = await res.json();
       document.getElementById('conversion').textContent = data.conversionRatePercent + '%';
       document.getElementById('duration').textContent = data.averageDurationSeconds + 's';
+      document.getElementById('latency').textContent = data.averageVoiceLatencyMs + 'ms / ' + data.p95VoiceLatencyMs + 'ms';
+      document.getElementById('latencyTarget').textContent = '<1.5s: ' + data.under1500msRatePercent + '%';
       document.getElementById('scores').textContent = 'A: ' + data.leadScoreDistribution.A + ' | B: ' + data.leadScoreDistribution.B + ' | C: ' + data.leadScoreDistribution.C;
       const dropoffList = document.getElementById('dropoffs');
       dropoffList.innerHTML = '';
@@ -66,4 +69,3 @@ export async function registerDashboardRoutes(app: FastifyInstance, store: InMem
     return html;
   });
 }
-

@@ -6,6 +6,9 @@ export interface DashboardKpiSnapshot {
   bookedCalls: number;
   conversionRatePercent: number;
   averageDurationSeconds: number;
+  averageVoiceLatencyMs: number;
+  p95VoiceLatencyMs: number;
+  under1500msRatePercent: number;
   leadScoreDistribution: { A: number; B: number; C: number };
   dropOffPoints: Array<{ reason: string; count: number }>;
 }
@@ -31,7 +34,8 @@ export class InMemoryCallStore {
     const created: CallSession = {
       id: callId,
       startedAt: new Date().toISOString(),
-      transcript: []
+      transcript: [],
+      voiceResponseLatenciesMs: []
     };
     this.calls.set(callId, created);
     return created;
@@ -52,6 +56,12 @@ export class InMemoryCallStore {
     call.completedAt = payload.completedAt;
     call.dropOffReason = payload.dropOffReason;
     return call;
+  }
+
+  public addVoiceLatency(callId: string, latencyMs: number): void {
+    const call = this.getOrCreateCall(callId);
+    const safeLatency = Math.max(0, Math.round(latencyMs));
+    call.voiceResponseLatenciesMs.push(safeLatency);
   }
 
   public getCall(callId: string): CallSession | undefined {
@@ -78,6 +88,17 @@ export class InMemoryCallStore {
     const averageDurationSeconds =
       durations.length === 0 ? 0 : Math.round(durations.reduce((acc, seconds) => acc + seconds, 0) / durations.length);
 
+    const latencies = all.flatMap((call) => call.voiceResponseLatenciesMs);
+    const averageVoiceLatencyMs =
+      latencies.length === 0 ? 0 : Math.round(latencies.reduce((acc, value) => acc + value, 0) / latencies.length);
+    const sortedLatencies = [...latencies].sort((a, b) => a - b);
+    const p95VoiceLatencyMs =
+      sortedLatencies.length === 0
+        ? 0
+        : sortedLatencies[Math.min(sortedLatencies.length - 1, Math.floor(sortedLatencies.length * 0.95))];
+    const under1500msRatePercent =
+      latencies.length === 0 ? 0 : Number(((latencies.filter((value) => value < 1500).length / latencies.length) * 100).toFixed(1));
+
     const leadScoreDistribution = { A: 0, B: 0, C: 0 };
     for (const call of completed) {
       if (call.leadScore) {
@@ -103,9 +124,11 @@ export class InMemoryCallStore {
       bookedCalls,
       conversionRatePercent,
       averageDurationSeconds,
+      averageVoiceLatencyMs,
+      p95VoiceLatencyMs,
+      under1500msRatePercent,
       leadScoreDistribution,
       dropOffPoints
     };
   }
 }
-

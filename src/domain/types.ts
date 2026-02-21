@@ -38,10 +38,10 @@ export interface CallSession {
   startedAt: string;
   completedAt?: string;
   transcript: TranscriptTurn[];
+  voiceResponseLatenciesMs: number[];
   qualification?: LeadQualificationInput;
   leadScore?: LeadScore;
   booking?: BookingResult;
   summary?: CallSummary;
   dropOffReason?: string;
 }
-
