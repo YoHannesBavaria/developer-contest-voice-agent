@@ -13,6 +13,14 @@ describe("qualification extractor heuristics", () => {
     expect(draft3.companySizeEmployees).toBe(120);
   });
 
+  it("handles broader urgency wording", () => {
+    const high = extractQualificationHeuristics("Die Prioritaet ist prio hoch.", {});
+    expect(high.interestLevel).toBe("high");
+
+    const low = extractQualificationHeuristics("Das ist nicht dringend, eher spaeter.", {});
+    expect(low.interestLevel).toBe("low");
+  });
+
   it("recognizes completeness correctly", () => {
     const complete = {
       interestLevel: "high",
@@ -28,4 +36,3 @@ describe("qualification extractor heuristics", () => {
     expect(toCompleteQualification(complete)?.useCase).toContain("Inbound");
   });
 });
-

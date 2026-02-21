@@ -88,7 +88,7 @@ function buildGatherTwiml(text: string, callId: string, publicBaseUrl?: string):
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     "<Response>",
-    `  <Gather input="speech dtmf" speechTimeout="auto" timeout="10" actionOnEmptyResult="true" method="POST" action="${xmlEscape(actionUrl)}">`,
+    `  <Gather input="speech dtmf" language="de-DE" speechModel="phone_call" speechTimeout="auto" timeout="10" actionOnEmptyResult="true" method="POST" action="${xmlEscape(actionUrl)}">`,
     `    <Say language="de-DE">${escapedText}</Say>`,
     "  </Gather>",
     "</Response>"

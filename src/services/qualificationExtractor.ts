@@ -24,12 +24,12 @@ export function extractQualificationHeuristics(text: string, existing: Qualifica
   const patch: QualificationDraft = {};
 
   if (!existing.interestLevel) {
-    if (/\b(hoch|dringend|sofort|kritisch|sehr wichtig)\b/i.test(normalized)) {
-      patch.interestLevel = "high";
-    } else if (/\b(mittel|moderat|ok)\b/i.test(normalized)) {
-      patch.interestLevel = "medium";
-    } else if (/\b(niedrig|spater|später|gering)\b/i.test(normalized)) {
+    if (/\b(niedrig|spaeter|spater|gering|nicht dringend|unwichtig)\b/i.test(normalized)) {
       patch.interestLevel = "low";
+    } else if (/\b(hoch|dringend|sofort|kritisch|sehr wichtig|sehr hoch|prio hoch|prioritaet hoch|urgent|asap)\b/i.test(normalized)) {
+      patch.interestLevel = "high";
+    } else if (/\b(mittel|moderat|ok|passt|normal)\b/i.test(normalized)) {
+      patch.interestLevel = "medium";
     }
   }
 
@@ -60,7 +60,7 @@ export function extractQualificationHeuristics(text: string, existing: Qualifica
   }
 
   if (existing.hasAuthority === undefined) {
-    if (/\b(ich entscheide|entscheidungsbefugt|entscheidungstrager|entscheidungsträger|bin entscheider)\b/i.test(normalized)) {
+    if (/\b(ich entscheide|entscheidungsbefugt|entscheidungstraeger|entscheidungstrager|bin entscheider|zeichnungsberechtigt)\b/i.test(normalized)) {
       patch.hasAuthority = true;
     } else if (/\b(ich entscheide nicht|keine entscheidung|muss abstimmen|nicht entscheidungsbefugt)\b/i.test(normalized)) {
       patch.hasAuthority = false;

@@ -12,6 +12,6 @@ test("twilio inbound webhook responds with TwiML gather", async ({ request }) =>
   const twiml = await response.text();
   expect(twiml).toContain("<Response>");
   expect(twiml).toContain("<Gather");
+  expect(twiml).toContain('language="de-DE"');
   expect(twiml).toContain("/api/providers/twilio/gather?callId=CA1234567890");
 });
-
