@@ -41,6 +41,7 @@ Server:
 - `CALCOM_EVENT_TYPE_ID` (nur fuer `calcom`)
 - `OPENAI_API_KEY` (optional fuer bessere Extraktion)
 - `OPENAI_MODEL` (Default `gpt-4o-mini`)
+- `PUBLIC_BASE_URL` (z. B. `https://deine-domain.tld`, wichtig fuer Twilio Signatur-Validation)
 - `TWILIO_ACCOUNT_SID` (optional fuer echte Inbound-Telefonie)
 - `TWILIO_AUTH_TOKEN` (optional fuer echte Inbound-Telefonie)
 - `TWILIO_PHONE_NUMBER` (optional fuer echte Inbound-Telefonie)
@@ -100,6 +101,7 @@ curl -X POST http://localhost:3000/api/voice/next \
 - Scoring ist bewusst deterministisch fuer Nachvollziehbarkeit in der Demo.
 - Kalender ist als Adapter gekapselt, damit Mock und Live-Buchung austauschbar bleiben.
 - Voice-Flow nutzt Slot-Filling und kann optional per OpenAI verbessert extrahieren.
+- Twilio Signaturpruefung ist aktiv, sobald `TWILIO_AUTH_TOKEN` gesetzt ist.
 
 ## Contest Deliverables
 - Projektplan: `docs/contest-plan.md`

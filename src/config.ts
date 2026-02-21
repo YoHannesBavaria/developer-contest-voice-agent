@@ -3,6 +3,7 @@ import { z } from "zod";
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(3000),
+  PUBLIC_BASE_URL: z.string().url().optional(),
   SAAS_PRODUCT_NAME: z.string().min(1).default("PipelinePilot"),
   DEMO_TIMEZONE: z.string().min(1).default("Europe/Berlin"),
   CALENDAR_PROVIDER: z.enum(["mock", "calcom", "calendly", "google"]).default("mock"),
@@ -11,7 +12,10 @@ const envSchema = z.object({
   CALCOM_BASE_URL: z.string().url().default("https://api.cal.com"),
   CALCOM_API_VERSION: z.string().default("2024-08-13"),
   OPENAI_API_KEY: z.string().optional(),
-  OPENAI_MODEL: z.string().default("gpt-4o-mini")
+  OPENAI_MODEL: z.string().default("gpt-4o-mini"),
+  TWILIO_ACCOUNT_SID: z.string().optional(),
+  TWILIO_AUTH_TOKEN: z.string().optional(),
+  TWILIO_PHONE_NUMBER: z.string().optional()
 });
 
 export type AppConfig = z.infer<typeof envSchema>;

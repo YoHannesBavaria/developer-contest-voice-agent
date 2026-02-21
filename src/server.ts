@@ -35,7 +35,10 @@ await registerCallRoutes(app, {
 });
 await registerDashboardRoutes(app, store);
 await registerVoiceRoutes(app, voice);
-await registerTwilioRoutes(app, voice);
+await registerTwilioRoutes(app, voice, {
+  publicBaseUrl: config.PUBLIC_BASE_URL,
+  authToken: config.TWILIO_AUTH_TOKEN
+});
 
 app.setErrorHandler((error, _request, reply) => {
   app.log.error(error);

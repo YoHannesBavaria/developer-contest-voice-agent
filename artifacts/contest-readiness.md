@@ -1,5 +1,5 @@
 # Contest Readiness Report
-Generated: 2026-02-21T19:58:02.935Z
+Generated: 2026-02-21T20:11:48.540Z
 
 ## Deliverables
 - [x] README
@@ -10,6 +10,7 @@ Generated: 2026-02-21T19:58:02.935Z
 - [ ] Submission done (manual)
 
 ## Key Status
+- PUBLIC_BASE_URL: missing
 - CALENDAR_PROVIDER: set
 - CALCOM_API_KEY: set
 - CALCOM_EVENT_TYPE_ID: set

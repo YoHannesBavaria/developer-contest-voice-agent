@@ -50,6 +50,7 @@ const checks = [
 ];
 
 const keyChecks = [
+  ["PUBLIC_BASE_URL", setStatus(env.PUBLIC_BASE_URL)],
   ["CALENDAR_PROVIDER", setStatus(env.CALENDAR_PROVIDER)],
   ["CALCOM_API_KEY", setStatus(env.CALCOM_API_KEY)],
   ["CALCOM_EVENT_TYPE_ID", setStatus(env.CALCOM_EVENT_TYPE_ID)],
@@ -83,6 +84,10 @@ if (env.CALENDAR_PROVIDER === "calcom") {
   }
 }
 
+if (setStatus(env.TWILIO_AUTH_TOKEN) === "set" && setStatus(env.PUBLIC_BASE_URL) !== "set") {
+  missing.push("PUBLIC_BASE_URL (required for robust Twilio signature validation)");
+}
+
 if (missing.length === 0) {
   report.push("");
   report.push("Result: READY (technical checks)");
@@ -101,4 +106,3 @@ fs.writeFileSync(outPath, `${report.join("\n")}\n`, "utf8");
 
 console.log(report.join("\n"));
 console.log(`\nSaved report: ${outPath}`);
-
