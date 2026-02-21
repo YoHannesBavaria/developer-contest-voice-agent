@@ -1,0 +1,211 @@
+{
+  "generatedAt": "2026-02-21T19:03:34.586Z",
+  "baseUrl": "http://127.0.0.1:3000",
+  "callId": "demo-1771700612378",
+  "timeline": [
+    {
+      "role": "agent",
+      "payload": {
+        "callId": "demo-1771700612378",
+        "agentUtterance": "Willkommen bei PipelinePilot. Ich stelle dir kurz 7 Fragen fuer die passende Demo. Wie hoch ist die Prioritaet: niedrig, mittel oder hoch?",
+        "captured": {},
+        "missingFields": [
+          "interestLevel",
+          "budgetMonthlyEur",
+          "companySizeEmployees",
+          "timelineWeeks",
+          "hasAuthority",
+          "useCase",
+          "painPoint"
+        ],
+        "completed": false
+      }
+    },
+    {
+      "role": "lead",
+      "text": "Das Thema ist hoch dringend fuer uns."
+    },
+    {
+      "role": "agent",
+      "payload": {
+        "callId": "demo-1771700612378",
+        "agentUtterance": "Verstanden, danke. Welches monatliche Budget in Euro ist geplant?",
+        "captured": {
+          "interestLevel": "high"
+        },
+        "missingFields": [
+          "budgetMonthlyEur",
+          "companySizeEmployees",
+          "timelineWeeks",
+          "hasAuthority",
+          "useCase",
+          "painPoint"
+        ],
+        "completed": false
+      }
+    },
+    {
+      "role": "lead",
+      "text": "Unser Budget liegt bei 3200 Euro pro Monat."
+    },
+    {
+      "role": "agent",
+      "payload": {
+        "callId": "demo-1771700612378",
+        "agentUtterance": "Verstanden, danke. Wie viele Mitarbeitende sind im betroffenen Team?",
+        "captured": {
+          "interestLevel": "high",
+          "budgetMonthlyEur": 3200
+        },
+        "missingFields": [
+          "companySizeEmployees",
+          "timelineWeeks",
+          "hasAuthority",
+          "useCase",
+          "painPoint"
+        ],
+        "completed": false
+      }
+    },
+    {
+      "role": "lead",
+      "text": "Wir haben 170 Mitarbeiter im Team."
+    },
+    {
+      "role": "agent",
+      "payload": {
+        "callId": "demo-1771700612378",
+        "agentUtterance": "Verstanden, danke. In wie vielen Wochen wollt ihr live gehen?",
+        "captured": {
+          "interestLevel": "high",
+          "budgetMonthlyEur": 3200,
+          "companySizeEmployees": 170
+        },
+        "missingFields": [
+          "timelineWeeks",
+          "hasAuthority",
+          "useCase",
+          "painPoint"
+        ],
+        "completed": false
+      }
+    },
+    {
+      "role": "lead",
+      "text": "Wir wollen in 3 Wochen live gehen."
+    },
+    {
+      "role": "agent",
+      "payload": {
+        "callId": "demo-1771700612378",
+        "agentUtterance": "Verstanden, danke. Bist du entscheidungsbefugt fuer dieses Projekt?",
+        "captured": {
+          "interestLevel": "high",
+          "budgetMonthlyEur": 3200,
+          "companySizeEmployees": 170,
+          "timelineWeeks": 3,
+          "useCase": "in 3 Wochen live gehen."
+        },
+        "missingFields": [
+          "hasAuthority",
+          "painPoint"
+        ],
+        "completed": false
+      }
+    },
+    {
+      "role": "lead",
+      "text": "Ja, ich bin entscheidungsbefugt."
+    },
+    {
+      "role": "agent",
+      "payload": {
+        "callId": "demo-1771700612378",
+        "agentUtterance": "Verstanden, danke. Was ist der wichtigste Pain Point heute?",
+        "captured": {
+          "interestLevel": "high",
+          "budgetMonthlyEur": 3200,
+          "companySizeEmployees": 170,
+          "timelineWeeks": 3,
+          "useCase": "in 3 Wochen live gehen.",
+          "hasAuthority": true
+        },
+        "missingFields": [
+          "painPoint"
+        ],
+        "completed": false
+      }
+    },
+    {
+      "role": "lead",
+      "text": "Use case: Inbound Qualifizierung fuer Demo Calls."
+    },
+    {
+      "role": "agent",
+      "payload": {
+        "callId": "demo-1771700612378",
+        "agentUtterance": "Verstanden, danke. Was ist der wichtigste Pain Point heute?",
+        "captured": {
+          "interestLevel": "high",
+          "budgetMonthlyEur": 3200,
+          "companySizeEmployees": 170,
+          "timelineWeeks": 3,
+          "useCase": "in 3 Wochen live gehen.",
+          "hasAuthority": true
+        },
+        "missingFields": [
+          "painPoint"
+        ],
+        "completed": false
+      }
+    },
+    {
+      "role": "lead",
+      "text": "Pain point: zu viele manuelle Erstgespraeche am Abend."
+    },
+    {
+      "role": "agent",
+      "payload": {
+        "callId": "demo-1771700612378",
+        "agentUtterance": "Perfekt, Termin ist fuer 2026-02-22T09:00:00.000Z reserviert. Ich sende dir die Details im Anschluss.",
+        "captured": {
+          "interestLevel": "high",
+          "budgetMonthlyEur": 3200,
+          "companySizeEmployees": 170,
+          "timelineWeeks": 3,
+          "useCase": "in 3 Wochen live gehen.",
+          "hasAuthority": true,
+          "painPoint": "zu viele manuelle Erstgespraeche am Abend."
+        },
+        "missingFields": [],
+        "completed": true,
+        "booking": {
+          "booked": true,
+          "slotIso": "2026-02-22T09:00:00.000Z",
+          "provider": "mock"
+        },
+        "summary": {
+          "summaryText": "Lead interessiert an PipelinePilot fuer Use Case: in 3 Wochen live gehen.. Pain Point: zu viele manuelle Erstgespraeche am Abend.. Lead Score: A (95/100). Demo gebucht fuer 2026-02-22T09:00:00.000Z.",
+          "nextSteps": [
+            "Demo vorbereiten",
+            "Use-Case-Deck auf Bedarf zuschneiden",
+            "Follow-up E-Mail versenden"
+          ]
+        }
+      }
+    }
+  ],
+  "kpis": {
+    "totalCalls": 1,
+    "completedCalls": 1,
+    "bookedCalls": 1,
+    "conversionRatePercent": 100,
+    "averageDurationSeconds": 0,
+    "leadScoreDistribution": {
+      "A": 1,
+      "B": 0,
+      "C": 0
+    },
+    "dropOffPoints": []
+  }
+}

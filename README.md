@@ -42,6 +42,20 @@ Server:
 - `OPENAI_API_KEY` (optional fuer bessere Extraktion)
 - `OPENAI_MODEL` (Default `gpt-4o-mini`)
 
+## Demo-Automation
+```bash
+npm run demo:simulate
+```
+- Schreibt einen kompletten simulierten Voice-Call nach `artifacts/demo-call-output.json`.
+- Nutzt standardmaessig `DEMO_BASE_URL=http://127.0.0.1:3000` (uebersteuerbar per Env).
+
+## Telegram Heartbeat (90s)
+```bash
+node scripts/telegram-heartbeat.mjs
+```
+- Sendet periodische Telegram-Statusmeldungen.
+- Steuerbar mit `HEARTBEAT_EVERY_SECONDS`, `HEARTBEAT_ITERATIONS`, `HEARTBEAT_PREFIX`.
+
 ## Beispiel-Flow (lokal)
 ```bash
 curl -X POST http://localhost:3000/api/calls/demo-1/turn \

@@ -9,6 +9,7 @@
     "start:test": "tsx src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
+    "demo:simulate": "node scripts/run-demo-call.mjs",
     "test:unit": "vitest run",
     "test:e2e": "playwright test --reporter=line",
     "test": "npm run test:unit && npm run test:e2e"
