@@ -39,6 +39,7 @@ Server:
 - `CALENDAR_PROVIDER=mock|calcom`
 - `CALCOM_API_KEY` (nur fuer `calcom`)
 - `CALCOM_EVENT_TYPE_ID` (nur fuer `calcom`)
+- `CALCOM_API_VERSION` (empfohlen `2024-09-04`, benoetigt fuer Slot-Discovery via `/v2/slots`)
 - `OPENAI_API_KEY` (optional fuer bessere Extraktion)
 - `OPENAI_MODEL` (Default `gpt-4o-mini`)
 - `PUBLIC_BASE_URL` (z. B. `https://deine-domain.tld`, wichtig fuer Twilio Signatur-Validation)
@@ -96,6 +97,7 @@ curl -X POST http://localhost:3000/api/voice/next \
 - `src/services/qualificationExtractor.ts`: heuristische Qualifikations-Extraktion.
 - `src/services/summary.ts`: strukturierte Summary-Erstellung.
 - `src/store/inMemoryStore.ts`: Session- und KPI-Speicher (MVP, in-memory).
+  - Hinweis: Daten sind nicht persistent und gehen bei Neustart/Deploy verloren.
 - `config/conversation-flow.yaml`: Gespraechslogik/Prompt-Grundlage (wird zur Laufzeit geladen).
 
 ## Design-Entscheidungen

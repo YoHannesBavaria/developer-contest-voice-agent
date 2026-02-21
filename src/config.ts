@@ -10,7 +10,7 @@ const envSchema = z.object({
   CALCOM_API_KEY: z.string().optional(),
   CALCOM_EVENT_TYPE_ID: z.coerce.number().int().positive().optional(),
   CALCOM_BASE_URL: z.string().url().default("https://api.cal.com"),
-  CALCOM_API_VERSION: z.string().default("2024-08-13"),
+  CALCOM_API_VERSION: z.string().default("2024-09-04"),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_MODEL: z.string().default("gpt-4o-mini"),
   TWILIO_ACCOUNT_SID: z.string().optional(),
