@@ -23,6 +23,8 @@ const completeSchema = z.object({
     painPoint: z.string().min(1)
   }),
   preferredSlotIso: z.string().datetime().optional(),
+  leadName: z.string().min(1).optional(),
+  leadEmail: z.string().email().optional(),
   dropOffReason: z.string().min(1).optional()
 });
 
@@ -61,7 +63,9 @@ export async function registerCallRoutes(app: FastifyInstance, deps: RegisterCal
         : await deps.calendar.bookDemo({
             callId,
             timezone: deps.timezone,
-            preferredSlotIso: body.preferredSlotIso
+            preferredSlotIso: body.preferredSlotIso,
+            attendeeName: body.leadName,
+            attendeeEmail: body.leadEmail
           });
 
     const summary = buildSummary({
@@ -88,4 +92,3 @@ export async function registerCallRoutes(app: FastifyInstance, deps: RegisterCal
     };
   });
 }
-

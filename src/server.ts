@@ -3,14 +3,22 @@ import { loadConfig } from "./config.js";
 import { registerCallRoutes } from "./routes/calls.js";
 import { registerDashboardRoutes } from "./routes/dashboard.js";
 import { registerHealthRoutes } from "./routes/health.js";
+import { registerVoiceRoutes } from "./routes/voice.js";
 import { createCalendarService } from "./services/calendar.js";
 import { InMemoryCallStore } from "./store/inMemoryStore.js";
+import { VoiceConversationService } from "./services/voiceConversation.js";
 
 const config = loadConfig();
 const app = Fastify({ logger: true });
 
 const store = new InMemoryCallStore();
-const calendar = createCalendarService(config.CALENDAR_PROVIDER);
+const calendar = createCalendarService(config);
+const voice = new VoiceConversationService(store, calendar, {
+  productName: config.SAAS_PRODUCT_NAME,
+  timezone: config.DEMO_TIMEZONE,
+  openAiApiKey: config.OPENAI_API_KEY,
+  openAiModel: config.OPENAI_MODEL
+});
 
 await registerHealthRoutes(app);
 await registerCallRoutes(app, {
@@ -20,6 +28,7 @@ await registerCallRoutes(app, {
   timezone: config.DEMO_TIMEZONE
 });
 await registerDashboardRoutes(app, store);
+await registerVoiceRoutes(app, voice);
 
 app.setErrorHandler((error, _request, reply) => {
   app.log.error(error);

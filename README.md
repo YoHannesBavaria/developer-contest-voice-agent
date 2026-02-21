@@ -3,11 +3,13 @@
 Starter-Implementierung fuer den Developer Contest "Voice Agent fuer Business Development".
 
 ## Was bereits umgesetzt ist
-- Fastify API fuer Call-Tracking und Abschlusslogik.
+- Fastify API fuer Call-Tracking, Voice-Flow und Abschlusslogik.
 - Lead-Qualifizierung mit 5 Kriterien und A/B/C-Scoring.
-- Terminbuchungs-Adapter (MVP: Mock, erweiterbar auf Cal.com/Google/Calendly).
+- Terminbuchungs-Adapter:
+  - `mock` (sofort nutzbar)
+  - `calcom` (live via API Key + Event Type ID)
 - Automatische Gespraechs-Summary mit naechsten Schritten.
-- KPI-API und einfaches Dashboard:
+- KPI-API und Dashboard:
   - Conversion Rate
   - Lead-Score-Verteilung
   - Durchschnittliche Gespraechsdauer
@@ -26,8 +28,17 @@ Server:
 - `GET /health`
 - `POST /api/calls/:callId/turn`
 - `POST /api/calls/:callId/complete`
+- `POST /api/voice/start`
+- `POST /api/voice/next`
 - `GET /api/dashboard/kpis`
 - `GET /dashboard`
+
+## Wichtige Env Variablen
+- `CALENDAR_PROVIDER=mock|calcom`
+- `CALCOM_API_KEY` (nur fuer `calcom`)
+- `CALCOM_EVENT_TYPE_ID` (nur fuer `calcom`)
+- `OPENAI_API_KEY` (optional fuer bessere Extraktion)
+- `OPENAI_MODEL` (Default `gpt-4o-mini`)
 
 ## Beispiel-Flow (lokal)
 ```bash
@@ -38,20 +49,31 @@ curl -X POST http://localhost:3000/api/calls/demo-1/turn \
 curl -X POST http://localhost:3000/api/calls/demo-1/complete \
   -H "Content-Type: application/json" \
   -d "{\"qualification\":{\"interestLevel\":\"high\",\"budgetMonthlyEur\":2500,\"companySizeEmployees\":140,\"timelineWeeks\":4,\"hasAuthority\":true,\"useCase\":\"Inbound SDR Entlastung\",\"painPoint\":\"zu viele manuelle Calls\"}}"
+
+curl -X POST http://localhost:3000/api/voice/start \
+  -H "Content-Type: application/json" \
+  -d "{\"callId\":\"voice-1\",\"leadName\":\"Max Mustermann\",\"leadEmail\":\"max@example.com\"}"
+
+curl -X POST http://localhost:3000/api/voice/next \
+  -H "Content-Type: application/json" \
+  -d "{\"callId\":\"voice-1\",\"leadUtterance\":\"Unser Budget liegt bei 2500 Euro pro Monat\"}"
 ```
 
 ## Architektur
 - `src/routes/calls.ts`: intake + completion.
+- `src/routes/voice.ts`: Voice webhook-style flow (start/next).
 - `src/domain/leadScoring.ts`: deterministisches Lead-Scoring.
-- `src/services/calendar.ts`: Booking-Adapter.
+- `src/services/calendar.ts`: Booking-Adapter inklusive Cal.com.
+- `src/services/voiceConversation.ts`: Slot-Filling, Fragefolge, Auto-Completion.
+- `src/services/qualificationExtractor.ts`: heuristische Qualifikations-Extraktion.
 - `src/services/summary.ts`: strukturierte Summary-Erstellung.
 - `src/store/inMemoryStore.ts`: Session- und KPI-Speicher (MVP, in-memory).
 - `config/conversation-flow.yaml`: Gespraechslogik/Prompt-Grundlage.
 
 ## Design-Entscheidungen
 - Scoring ist bewusst deterministisch fuer Nachvollziehbarkeit in der Demo.
-- Kalender ist als Adapter gekapselt, um schnell von Mock auf echten Provider zu wechseln.
-- Dashboard nutzt dieselben Daten wie die API, damit KPIs reproduzierbar bleiben.
+- Kalender ist als Adapter gekapselt, damit Mock und Live-Buchung austauschbar bleiben.
+- Voice-Flow nutzt Slot-Filling und kann optional per OpenAI verbessert extrahieren.
 
 ## Contest Deliverables
 - Projektplan: `docs/contest-plan.md`
@@ -64,8 +86,9 @@ curl -X POST http://localhost:3000/api/calls/demo-1/complete \
 - `playwright`: Browserbasierte End-to-End-Pruefungen.
 - `telegram`: Statusmeldungen waehrend Umsetzung.
 
-## Nächste Schritte fuer Abgabe
-1. Voice-Provider anbinden (z. B. OpenAI Realtime/Twilio/Retell).
-2. Kalender live schalten (Cal.com oder Google Calendar).
+## Naechste Schritte fuer Abgabe
+1. Voice-Provider anbinden (z. B. Twilio, Retell, OpenAI Realtime) und an `/api/voice/next` koppeln.
+2. Cal.com produktiv konfigurieren (`CALENDAR_PROVIDER=calcom`).
 3. Demo-Call aufnehmen und Loom-Video erstellen.
 4. Repo auf GitHub pushen und ueber Contest-Link einreichen.
+

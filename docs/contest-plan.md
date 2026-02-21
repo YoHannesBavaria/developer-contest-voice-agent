@@ -8,8 +8,14 @@
 - Voice Layer: Provider deiner Wahl (z. B. OpenAI Realtime, Twilio, Retell).
 - Orchestrierung: Node/Fastify API aus diesem Repo.
 - Lead Scoring: deterministische Scoring-Funktion (A/B/C).
-- Booking: Calendar-Adapter (MVP Mock, danach Cal.com/Google).
+- Booking: Calendar-Adapter (Mock + Cal.com bereits vorhanden).
 - Analytics: `/api/dashboard/kpis` + `/dashboard`.
+
+## Aktueller Stand
+- Voice-Flow Endpunkte vorhanden: `/api/voice/start`, `/api/voice/next`.
+- Slot-Filling fuer Qualifizierung aktiv (heuristisch + optional OpenAI-Extraktion).
+- Auto-Completion inkl. Booking + Summary aktiv.
+- Cal.com Adapter integriert (konfigurierbar via Env).
 
 ## 48h Ablauf
 1. Stunde 0-6
@@ -44,4 +50,3 @@
 - [ ] Aufgezeichneter Demo-Call (Audio/Video)
 - [ ] Loom-Video (2-3 Minuten)
 - [ ] Finale Abgabe auf Contest-Seite
-
