@@ -30,6 +30,8 @@ Server:
 - `POST /api/calls/:callId/complete`
 - `POST /api/voice/start`
 - `POST /api/voice/next`
+- `POST /api/providers/twilio/voice`
+- `POST /api/providers/twilio/gather`
 - `GET /api/dashboard/kpis`
 - `GET /dashboard`
 
@@ -62,6 +64,7 @@ curl -X POST http://localhost:3000/api/voice/next \
 ## Architektur
 - `src/routes/calls.ts`: intake + completion.
 - `src/routes/voice.ts`: Voice webhook-style flow (start/next).
+- `src/routes/twilio.ts`: Twilio webhook bridge (TwiML Gather flow).
 - `src/domain/leadScoring.ts`: deterministisches Lead-Scoring.
 - `src/services/calendar.ts`: Booking-Adapter inklusive Cal.com.
 - `src/services/voiceConversation.ts`: Slot-Filling, Fragefolge, Auto-Completion.
@@ -87,8 +90,7 @@ curl -X POST http://localhost:3000/api/voice/next \
 - `telegram`: Statusmeldungen waehrend Umsetzung.
 
 ## Naechste Schritte fuer Abgabe
-1. Voice-Provider anbinden (z. B. Twilio, Retell, OpenAI Realtime) und an `/api/voice/next` koppeln.
+1. Voice-Provider produktiv verdrahten (Twilio-Webhook ist vorbereitet, alternativ Retell/OpenAI Realtime).
 2. Cal.com produktiv konfigurieren (`CALENDAR_PROVIDER=calcom`).
 3. Demo-Call aufnehmen und Loom-Video erstellen.
 4. Repo auf GitHub pushen und ueber Contest-Link einreichen.
-

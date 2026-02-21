@@ -1,8 +1,10 @@
 import Fastify from "fastify";
+import formBody from "@fastify/formbody";
 import { loadConfig } from "./config.js";
 import { registerCallRoutes } from "./routes/calls.js";
 import { registerDashboardRoutes } from "./routes/dashboard.js";
 import { registerHealthRoutes } from "./routes/health.js";
+import { registerTwilioRoutes } from "./routes/twilio.js";
 import { registerVoiceRoutes } from "./routes/voice.js";
 import { createCalendarService } from "./services/calendar.js";
 import { InMemoryCallStore } from "./store/inMemoryStore.js";
@@ -20,6 +22,7 @@ const voice = new VoiceConversationService(store, calendar, {
   openAiModel: config.OPENAI_MODEL
 });
 
+await app.register(formBody);
 await registerHealthRoutes(app);
 await registerCallRoutes(app, {
   store,
@@ -29,6 +32,7 @@ await registerCallRoutes(app, {
 });
 await registerDashboardRoutes(app, store);
 await registerVoiceRoutes(app, voice);
+await registerTwilioRoutes(app, voice);
 
 app.setErrorHandler((error, _request, reply) => {
   app.log.error(error);
