@@ -5,12 +5,14 @@ import { LlmExtractor } from "./llmExtraction.js";
 import { buildSummary } from "./summary.js";
 import { extractQualificationHeuristics, qualificationMissingFields, toCompleteQualification, type QualificationDraft } from "./qualificationExtractor.js";
 import type { InMemoryCallStore } from "../store/inMemoryStore.js";
+import type { ConversationFlow } from "./conversationFlow.js";
 
 export interface VoiceConversationConfig {
   productName: string;
   timezone: string;
   openAiApiKey?: string;
   openAiModel: string;
+  flow: ConversationFlow;
 }
 
 export interface VoiceLeadProfile {
@@ -37,16 +39,6 @@ interface VoiceSession {
   completed: boolean;
 }
 
-const questionByField: Record<keyof LeadQualificationInput, string> = {
-  interestLevel: "Wie hoch ist die Prioritaet: niedrig, mittel oder hoch?",
-  budgetMonthlyEur: "Welches monatliche Budget in Euro ist geplant?",
-  companySizeEmployees: "Wie viele Mitarbeitende sind im betroffenen Team?",
-  timelineWeeks: "In wie vielen Wochen wollt ihr live gehen?",
-  hasAuthority: "Bist du entscheidungsbefugt fuer dieses Projekt?",
-  useCase: "Was ist euer konkreter Use Case?",
-  painPoint: "Was ist der wichtigste Pain Point heute?"
-};
-
 export class VoiceConversationService {
   private readonly sessions = new Map<string, VoiceSession>();
   private readonly llmExtractor: LlmExtractor;
@@ -70,11 +62,7 @@ export class VoiceConversationService {
 
     const missing = qualificationMissingFields(session.draft);
     const nextField = missing[0] ?? "interestLevel";
-    const opening = [
-      `Willkommen bei ${this.config.productName}.`,
-      "Ich stelle dir kurz 7 Fragen fuer die passende Demo.",
-      questionByField[nextField]
-    ].join(" ");
+    const opening = [...this.config.flow.opening, this.config.flow.questionByField[nextField]].join(" ");
 
     this.store.addTurn(callId, {
       speaker: "agent",
@@ -134,8 +122,9 @@ export class VoiceConversationService {
 
     const missing = qualificationMissingFields(session.draft);
     if (missing.length > 0) {
-      const prompt = questionByField[missing[0]];
-      const followUp = `Verstanden, danke. ${prompt}`;
+      const prompt = this.config.flow.questionByField[missing[0]];
+      const objectionHint = this.pickObjectionHint(leadUtterance);
+      const followUp = objectionHint ? `Verstanden, danke. ${objectionHint} ${prompt}` : `Verstanden, danke. ${prompt}`;
       this.store.addTurn(callId, {
         speaker: "agent",
         text: followUp,
@@ -201,6 +190,17 @@ export class VoiceConversationService {
       booking,
       summary
     };
+  }
+
+  private pickObjectionHint(leadUtterance: string): string | undefined {
+    const lower = leadUtterance.toLowerCase();
+    if (lower.includes("budget") || lower.includes("teuer") || lower.includes("kosten")) {
+      return this.config.flow.objectionHandling.budget[0];
+    }
+    if (lower.includes("vertrauen") || lower.includes("risiko") || lower.includes("unsicher")) {
+      return this.config.flow.objectionHandling.trust[0];
+    }
+    return undefined;
   }
 
   private getOrCreateSession(callId: string): VoiceSession {

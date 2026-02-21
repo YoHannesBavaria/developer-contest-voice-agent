@@ -7,6 +7,7 @@ import { registerHealthRoutes } from "./routes/health.js";
 import { registerTwilioRoutes } from "./routes/twilio.js";
 import { registerVoiceRoutes } from "./routes/voice.js";
 import { createCalendarService } from "./services/calendar.js";
+import { loadConversationFlow } from "./services/conversationFlow.js";
 import { InMemoryCallStore } from "./store/inMemoryStore.js";
 import { VoiceConversationService } from "./services/voiceConversation.js";
 
@@ -15,11 +16,13 @@ const app = Fastify({ logger: true });
 
 const store = new InMemoryCallStore();
 const calendar = createCalendarService(config);
+const flow = loadConversationFlow("config/conversation-flow.yaml", config.SAAS_PRODUCT_NAME);
 const voice = new VoiceConversationService(store, calendar, {
   productName: config.SAAS_PRODUCT_NAME,
   timezone: config.DEMO_TIMEZONE,
   openAiApiKey: config.OPENAI_API_KEY,
-  openAiModel: config.OPENAI_MODEL
+  openAiModel: config.OPENAI_MODEL,
+  flow
 });
 
 await app.register(formBody);

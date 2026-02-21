@@ -41,6 +41,9 @@ Server:
 - `CALCOM_EVENT_TYPE_ID` (nur fuer `calcom`)
 - `OPENAI_API_KEY` (optional fuer bessere Extraktion)
 - `OPENAI_MODEL` (Default `gpt-4o-mini`)
+- `TWILIO_ACCOUNT_SID` (optional fuer echte Inbound-Telefonie)
+- `TWILIO_AUTH_TOKEN` (optional fuer echte Inbound-Telefonie)
+- `TWILIO_PHONE_NUMBER` (optional fuer echte Inbound-Telefonie)
 
 ## Demo-Automation
 ```bash
@@ -85,7 +88,7 @@ curl -X POST http://localhost:3000/api/voice/next \
 - `src/services/qualificationExtractor.ts`: heuristische Qualifikations-Extraktion.
 - `src/services/summary.ts`: strukturierte Summary-Erstellung.
 - `src/store/inMemoryStore.ts`: Session- und KPI-Speicher (MVP, in-memory).
-- `config/conversation-flow.yaml`: Gespraechslogik/Prompt-Grundlage.
+- `config/conversation-flow.yaml`: Gespraechslogik/Prompt-Grundlage (wird zur Laufzeit geladen).
 
 ## Design-Entscheidungen
 - Scoring ist bewusst deterministisch fuer Nachvollziehbarkeit in der Demo.

@@ -16,6 +16,7 @@
 - Slot-Filling fuer Qualifizierung aktiv (heuristisch + optional OpenAI-Extraktion).
 - Auto-Completion inkl. Booking + Summary aktiv.
 - Cal.com Adapter integriert (konfigurierbar via Env).
+- `config/conversation-flow.yaml` ist direkt an die Runtime angebunden (Opening, Fragen, Objection-Hints).
 
 ## 48h Ablauf
 1. Stunde 0-6
