@@ -52,6 +52,12 @@ npm run demo:simulate
 - Schreibt einen kompletten simulierten Voice-Call nach `artifacts/demo-call-output.json`.
 - Nutzt standardmaessig `DEMO_BASE_URL=http://127.0.0.1:3000` (uebersteuerbar per Env).
 
+## Contest Readiness Check
+```bash
+npm run contest:readiness
+```
+- Erstellt `artifacts/contest-readiness.md` mit Deliverable- und Key-Status.
+
 ## Telegram Heartbeat (90s)
 ```bash
 node scripts/telegram-heartbeat.mjs
