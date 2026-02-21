@@ -45,6 +45,7 @@ Server:
 - `TWILIO_ACCOUNT_SID` (optional fuer echte Inbound-Telefonie)
 - `TWILIO_AUTH_TOKEN` (optional fuer echte Inbound-Telefonie)
 - `TWILIO_PHONE_NUMBER` (optional fuer echte Inbound-Telefonie)
+- `TWILIO_VALIDATE_SIGNATURE` (`false`/`true`, Default `false`)
 
 ## Demo-Automation
 ```bash
@@ -101,7 +102,7 @@ curl -X POST http://localhost:3000/api/voice/next \
 - Scoring ist bewusst deterministisch fuer Nachvollziehbarkeit in der Demo.
 - Kalender ist als Adapter gekapselt, damit Mock und Live-Buchung austauschbar bleiben.
 - Voice-Flow nutzt Slot-Filling und kann optional per OpenAI verbessert extrahieren.
-- Twilio Signaturpruefung ist aktiv, sobald `TWILIO_AUTH_TOKEN` gesetzt ist.
+- Twilio Signaturpruefung kann optional mit `TWILIO_VALIDATE_SIGNATURE=true` aktiviert werden.
 
 ## Contest Deliverables
 - Projektplan: `docs/contest-plan.md`

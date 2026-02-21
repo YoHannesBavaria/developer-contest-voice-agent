@@ -37,7 +37,8 @@ await registerDashboardRoutes(app, store);
 await registerVoiceRoutes(app, voice);
 await registerTwilioRoutes(app, voice, {
   publicBaseUrl: config.PUBLIC_BASE_URL,
-  authToken: config.TWILIO_AUTH_TOKEN
+  authToken: config.TWILIO_AUTH_TOKEN,
+  validateSignature: config.TWILIO_VALIDATE_SIGNATURE
 });
 
 app.setErrorHandler((error, _request, reply) => {

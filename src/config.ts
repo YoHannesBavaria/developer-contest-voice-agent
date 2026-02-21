@@ -15,7 +15,8 @@ const envSchema = z.object({
   OPENAI_MODEL: z.string().default("gpt-4o-mini"),
   TWILIO_ACCOUNT_SID: z.string().optional(),
   TWILIO_AUTH_TOKEN: z.string().optional(),
-  TWILIO_PHONE_NUMBER: z.string().optional()
+  TWILIO_PHONE_NUMBER: z.string().optional(),
+  TWILIO_VALIDATE_SIGNATURE: z.coerce.boolean().default(false)
 });
 
 export type AppConfig = z.infer<typeof envSchema>;

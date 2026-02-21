@@ -19,6 +19,7 @@ const gatherSchema = z.object({
 interface TwilioRoutesConfig {
   publicBaseUrl?: string;
   authToken?: string;
+  validateSignature?: boolean;
 }
 
 export async function registerTwilioRoutes(
@@ -120,6 +121,10 @@ function validateIfConfigured(
   path: string
 ): boolean {
   if (!config.authToken) {
+    return true;
+  }
+
+  if (!config.validateSignature) {
     return true;
   }
 
