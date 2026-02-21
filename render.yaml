@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: voice-agent-contest
+    runtime: node
+    plan: starter
+    autoDeploy: true
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: SAAS_PRODUCT_NAME
+        value: PipelinePilot
+      - key: DEMO_TIMEZONE
+        value: Europe/Berlin
+      - key: CALENDAR_PROVIDER
+        value: mock
+

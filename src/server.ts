@@ -1,0 +1,46 @@
+import Fastify from "fastify";
+import { loadConfig } from "./config.js";
+import { registerCallRoutes } from "./routes/calls.js";
+import { registerDashboardRoutes } from "./routes/dashboard.js";
+import { registerHealthRoutes } from "./routes/health.js";
+import { createCalendarService } from "./services/calendar.js";
+import { InMemoryCallStore } from "./store/inMemoryStore.js";
+
+const config = loadConfig();
+const app = Fastify({ logger: true });
+
+const store = new InMemoryCallStore();
+const calendar = createCalendarService(config.CALENDAR_PROVIDER);
+
+await registerHealthRoutes(app);
+await registerCallRoutes(app, {
+  store,
+  calendar,
+  productName: config.SAAS_PRODUCT_NAME,
+  timezone: config.DEMO_TIMEZONE
+});
+await registerDashboardRoutes(app, store);
+
+app.setErrorHandler((error, _request, reply) => {
+  app.log.error(error);
+  const message = error instanceof Error ? error.message : "Unknown error";
+  reply.code(400).send({
+    error: "BadRequest",
+    message
+  });
+});
+
+const stopSignals: NodeJS.Signals[] = ["SIGINT", "SIGTERM"];
+for (const signal of stopSignals) {
+  process.on(signal, async () => {
+    await app.close();
+    process.exit(0);
+  });
+}
+
+try {
+  await app.listen({ host: "0.0.0.0", port: config.PORT });
+} catch (error) {
+  app.log.error(error);
+  process.exit(1);
+}

@@ -1,0 +1,31 @@
+{
+  "name": "voice-agent-contest",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Developer contest starter for a B2B voice agent with qualification, booking and KPI dashboard.",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start:test": "tsx src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test --reporter=line",
+    "test": "npm run test:unit && npm run test:e2e"
+  },
+  "dependencies": {
+    "fastify": "^5.2.1",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.2",
+    "@types/node": "^22.15.3",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
+
