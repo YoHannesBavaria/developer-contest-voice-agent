@@ -2,6 +2,18 @@
 
 Starter-Implementierung fuer den Developer Contest "Voice Agent fuer Business Development".
 
+## Contest Submission Status (Stand: 2026-02-22)
+- Repository (oeffentlich): `https://github.com/YoHannesBavaria/developer-contest-voice-agent` ✅
+- README mit Architektur + Setup: vorhanden ✅
+- Aufgezeichneter Demo-Call (Audio/Video): noch als Link eintragen ⏳
+- Video (2-3 Min, Projektvorstellung): noch als Link eintragen ⏳
+
+## Submission Links (vor Abgabe ausfuellen)
+- Live App / Dashboard: `https://everlastwij.onrender.com/dashboard`
+- GitHub Repo: `https://github.com/YoHannesBavaria/developer-contest-voice-agent`
+- Demo-Call Aufnahme (Audio/Video): `<LINK_EINFUEGEN>`
+- Projektvideo (2-3 Min): `<LINK_EINFUEGEN>`
+
 ## Was bereits umgesetzt ist
 - Fastify API fuer Call-Tracking, Voice-Flow und Abschlusslogik.
 - Lead-Qualifizierung mit 5 Kriterien und A/B/C-Scoring.
@@ -23,6 +35,37 @@ npm install
 cp .env.example .env
 npm run dev
 ```
+
+## Installation & Setup (lokal)
+1. Node.js `>=20` installieren.
+2. Abhaengigkeiten installieren: `npm install`
+3. Env-Datei anlegen: `.env.example` nach `.env` kopieren
+4. Minimal fuer lokalen Test setzen:
+   - `CALL_STORE_PROVIDER=memory`
+   - `CALENDAR_PROVIDER=mock`
+5. Optional fuer Live-Flow setzen:
+   - `OPENAI_API_KEY`
+   - `TWILIO_*`
+   - `CALCOM_*`
+6. Starten:
+   - Dev: `npm run dev`
+   - Build + Start: `npm run build` und `npm run start`
+
+## Deployment (Render, produktionsnah)
+1. Web Service auf Render anlegen (Node).
+2. `PUBLIC_BASE_URL` auf deine Render-URL setzen.
+3. Render Postgres anlegen und `DATABASE_URL` hinterlegen.
+4. `CALL_STORE_PROVIDER=postgres` setzen.
+5. Fuer Telefonie:
+   - `TWILIO_ACCOUNT_SID`
+   - `TWILIO_AUTH_TOKEN`
+   - `TWILIO_PHONE_NUMBER`
+6. Fuer Kalenderbuchung:
+   - `CALENDAR_PROVIDER=calcom`
+   - `CALCOM_API_KEY`
+   - `CALCOM_EVENT_TYPE_ID`
+   - `CALCOM_API_VERSION=2024-09-04`
+7. Twilio Voice Webhook auf `POST /api/providers/twilio/voice` zeigen lassen.
 
 Server:
 - `GET /health`
@@ -114,6 +157,7 @@ curl -X POST http://localhost:3000/api/voice/next \
 ## Contest Deliverables
 - Projektplan: `docs/contest-plan.md`
 - Demo-Aufnahme-Guide: `artifacts/demo-call-script.md`
+- Submission-Checklist (ausfuellbar): `docs/submission-checklist.md`
 - Gespraechslogik: `config/conversation-flow.yaml`
 
 ## MCP Setup (bei dir bereits hinterlegt)
@@ -123,7 +167,7 @@ curl -X POST http://localhost:3000/api/voice/next \
 - `telegram`: Statusmeldungen waehrend Umsetzung.
 
 ## Naechste Schritte fuer Abgabe
-1. Voice-Provider produktiv verdrahten (Twilio-Webhook ist vorbereitet, alternativ Retell/OpenAI Realtime).
-2. Cal.com produktiv konfigurieren (`CALENDAR_PROVIDER=calcom`).
-3. Demo-Call aufnehmen und Loom-Video erstellen.
-4. Repo auf GitHub pushen und ueber Contest-Link einreichen.
+1. Demo-Call aufnehmen (Audio/Video) und Link in README + Submission-Checklist eintragen.
+2. 2-3 Min Projektvideo aufnehmen (Setup, Architektur, Live-Demo) und Link eintragen.
+3. Einreichformular mit oeffentlichem GitHub-Link + Video-Links ausfuellen.
+4. Finalen Testanruf durchfuehren und Screenshot vom Dashboard fuer Nachweis sichern.
