@@ -3,6 +3,7 @@ import type { BookingResult } from "../domain/types.js";
 
 const SLOT_LOOKAHEAD_DAYS = 14;
 const SLOTS_MIN_API_VERSION = "2024-09-04";
+const BOOKINGS_FALLBACK_API_VERSION = "2024-08-13";
 
 export interface BookDemoInput {
   callId: string;
@@ -143,20 +144,41 @@ class CalComCalendarService implements CalendarService {
     };
 
     try {
-      const response = await fetch(`${this.options.baseUrl}/v2/bookings`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.options.apiKey}`,
-          "cal-api-version": this.options.apiVersion,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
+      for (const apiVersion of this.bookingApiVersions()) {
+        const response = await fetch(`${this.options.baseUrl}/v2/bookings`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.options.apiKey}`,
+            "cal-api-version": apiVersion,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          return {
+            ok: true,
+            status: response.status,
+            reason: async () => ""
+          };
+        }
+
+        // Newer Cal.com API versions can return 404 for legacy bookings endpoint.
+        if (response.status === 404 && apiVersion !== BOOKINGS_FALLBACK_API_VERSION) {
+          continue;
+        }
+
+        return {
+          ok: false,
+          status: response.status,
+          reason: async () => await response.text()
+        };
+      }
 
       return {
-        ok: response.ok,
-        status: response.status,
-        reason: async () => await response.text()
+        ok: false,
+        status: 404,
+        reason: async () => "Cal.com booking endpoint not available for configured API versions."
       };
     } catch (error) {
       const reason = error instanceof Error ? error.message : "unknown error";
@@ -174,6 +196,14 @@ class CalComCalendarService implements CalendarService {
       return [preferred];
     }
     return [preferred, SLOTS_MIN_API_VERSION];
+  }
+
+  private bookingApiVersions(): string[] {
+    const preferred = this.options.apiVersion;
+    if (preferred === BOOKINGS_FALLBACK_API_VERSION) {
+      return [preferred];
+    }
+    return [preferred, BOOKINGS_FALLBACK_API_VERSION];
   }
 }
 
