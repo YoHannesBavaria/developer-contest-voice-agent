@@ -60,7 +60,12 @@ export function extractQualificationHeuristics(text: string, existing: Qualifica
   }
 
   if (existing.hasAuthority === undefined) {
-    if (/\b(ich entscheide|entscheidungsbefugt|entscheidungstraeger|entscheidungstrager|bin entscheider|zeichnungsberechtigt)\b/i.test(normalized)) {
+    if (
+      /\b(ich entscheide|entscheidungsbefugt|entscheidungstraeger|entscheidungstrager|bin entscheider|zeichnungsberechtigt)\b/i.test(
+        normalized
+      ) ||
+      /\b(ja[,.\s]+(bin ich|ich bin|klar|genau|absolut|sicher))\b/i.test(normalized)
+    ) {
       patch.hasAuthority = true;
     } else if (/\b(ich entscheide nicht|keine entscheidung|muss abstimmen|nicht entscheidungsbefugt)\b/i.test(normalized)) {
       patch.hasAuthority = false;

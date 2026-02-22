@@ -1,31 +1,11 @@
-import type { BookingResult, CallSession, CallSummary, LeadQualificationInput, LeadScore, TranscriptTurn } from "../domain/types.js";
+import type { CallSession, TranscriptTurn } from "../domain/types.js";
+import { calculateKpis } from "./kpiCalculator.js";
+import type { CallStore, CompleteCallPayload, DashboardKpiSnapshot } from "./storeTypes.js";
 
-export interface DashboardKpiSnapshot {
-  totalCalls: number;
-  completedCalls: number;
-  bookedCalls: number;
-  conversionRatePercent: number;
-  averageDurationSeconds: number;
-  averageVoiceLatencyMs: number;
-  p95VoiceLatencyMs: number;
-  under1500msRatePercent: number;
-  leadScoreDistribution: { A: number; B: number; C: number };
-  dropOffPoints: Array<{ reason: string; count: number }>;
-}
-
-export interface CompleteCallPayload {
-  qualification: LeadQualificationInput;
-  leadScore: LeadScore;
-  booking: BookingResult;
-  summary: CallSummary;
-  completedAt: string;
-  dropOffReason?: string;
-}
-
-export class InMemoryCallStore {
+export class InMemoryCallStore implements CallStore {
   private readonly calls = new Map<string, CallSession>();
 
-  public getOrCreateCall(callId: string): CallSession {
+  public async getOrCreateCall(callId: string): Promise<CallSession> {
     const existing = this.calls.get(callId);
     if (existing) {
       return existing;
@@ -41,14 +21,14 @@ export class InMemoryCallStore {
     return created;
   }
 
-  public addTurn(callId: string, turn: TranscriptTurn): CallSession {
-    const call = this.getOrCreateCall(callId);
+  public async addTurn(callId: string, turn: TranscriptTurn): Promise<CallSession> {
+    const call = await this.getOrCreateCall(callId);
     call.transcript.push(turn);
     return call;
   }
 
-  public completeCall(callId: string, payload: CompleteCallPayload): CallSession {
-    const call = this.getOrCreateCall(callId);
+  public async completeCall(callId: string, payload: CompleteCallPayload): Promise<CallSession> {
+    const call = await this.getOrCreateCall(callId);
     call.qualification = payload.qualification;
     call.leadScore = payload.leadScore;
     call.booking = payload.booking;
@@ -58,77 +38,34 @@ export class InMemoryCallStore {
     return call;
   }
 
-  public addVoiceLatency(callId: string, latencyMs: number): void {
-    const call = this.getOrCreateCall(callId);
+  public async addVoiceLatency(callId: string, latencyMs: number): Promise<void> {
+    const call = await this.getOrCreateCall(callId);
     const safeLatency = Math.max(0, Math.round(latencyMs));
     call.voiceResponseLatenciesMs.push(safeLatency);
   }
 
-  public getCall(callId: string): CallSession | undefined {
+  public async getCall(callId: string): Promise<CallSession | undefined> {
     return this.calls.get(callId);
   }
 
-  public getKpis(): DashboardKpiSnapshot {
-    const all = [...this.calls.values()];
-    const completed = all.filter((call) => call.completedAt !== undefined);
-    const bookedCalls = completed.filter((call) => call.booking?.booked).length;
-    const conversionRatePercent = completed.length === 0 ? 0 : Number(((bookedCalls / completed.length) * 100).toFixed(1));
+  public async getKpis(): Promise<DashboardKpiSnapshot> {
+    return calculateKpis([...this.calls.values()]);
+  }
 
-    const durations = completed
-      .map((call) => {
-        const firstTurn = call.transcript[0];
-        const lastTurn = call.transcript[call.transcript.length - 1];
-        if (!firstTurn || !lastTurn) {
-          return 0;
-        }
-        return Math.max(0, Math.round((Date.parse(lastTurn.timestamp) - Date.parse(firstTurn.timestamp)) / 1000));
-      })
-      .filter((seconds) => Number.isFinite(seconds));
+  public async listCalls(limit = 50): Promise<CallSession[]> {
+    return [...this.calls.values()]
+      .sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))
+      .slice(0, Math.max(1, limit));
+  }
 
-    const averageDurationSeconds =
-      durations.length === 0 ? 0 : Math.round(durations.reduce((acc, seconds) => acc + seconds, 0) / durations.length);
+  public async listBookedCalls(limit = 50): Promise<CallSession[]> {
+    const calls = await this.listCalls(limit * 2);
+    return calls.filter((call) => call.booking?.booked).slice(0, Math.max(1, limit));
+  }
 
-    const latencies = all.flatMap((call) => call.voiceResponseLatenciesMs);
-    const averageVoiceLatencyMs =
-      latencies.length === 0 ? 0 : Math.round(latencies.reduce((acc, value) => acc + value, 0) / latencies.length);
-    const sortedLatencies = [...latencies].sort((a, b) => a - b);
-    const p95VoiceLatencyMs =
-      sortedLatencies.length === 0
-        ? 0
-        : sortedLatencies[Math.min(sortedLatencies.length - 1, Math.floor(sortedLatencies.length * 0.95))];
-    const under1500msRatePercent =
-      latencies.length === 0 ? 0 : Number(((latencies.filter((value) => value < 1500).length / latencies.length) * 100).toFixed(1));
-
-    const leadScoreDistribution = { A: 0, B: 0, C: 0 };
-    for (const call of completed) {
-      if (call.leadScore) {
-        leadScoreDistribution[call.leadScore.grade] += 1;
-      }
-    }
-
-    const dropOffCount = new Map<string, number>();
-    for (const call of all) {
-      if (!call.dropOffReason) {
-        continue;
-      }
-      dropOffCount.set(call.dropOffReason, (dropOffCount.get(call.dropOffReason) ?? 0) + 1);
-    }
-
-    const dropOffPoints = [...dropOffCount.entries()]
-      .map(([reason, count]) => ({ reason, count }))
-      .sort((a, b) => b.count - a.count);
-
-    return {
-      totalCalls: all.length,
-      completedCalls: completed.length,
-      bookedCalls,
-      conversionRatePercent,
-      averageDurationSeconds,
-      averageVoiceLatencyMs,
-      p95VoiceLatencyMs,
-      under1500msRatePercent,
-      leadScoreDistribution,
-      dropOffPoints
-    };
+  public async shutdown(): Promise<void> {
+    return;
   }
 }
+
+export type { CallStore, CompleteCallPayload, DashboardKpiSnapshot } from "./storeTypes.js";

@@ -8,13 +8,13 @@ import { registerTwilioRoutes } from "./routes/twilio.js";
 import { registerVoiceRoutes } from "./routes/voice.js";
 import { createCalendarService } from "./services/calendar.js";
 import { loadConversationFlow } from "./services/conversationFlow.js";
-import { InMemoryCallStore } from "./store/inMemoryStore.js";
+import { createCallStore } from "./store/createCallStore.js";
 import { VoiceConversationService } from "./services/voiceConversation.js";
 
 const config = loadConfig();
 const app = Fastify({ logger: true });
 
-const store = new InMemoryCallStore();
+const store = await createCallStore(config, app.log);
 const calendar = createCalendarService(config);
 const flow = loadConversationFlow("config/conversation-flow.yaml", config.SAAS_PRODUCT_NAME);
 const voice = new VoiceConversationService(store, calendar, {
@@ -53,6 +53,7 @@ app.setErrorHandler((error, _request, reply) => {
 const stopSignals: NodeJS.Signals[] = ["SIGINT", "SIGTERM"];
 for (const signal of stopSignals) {
   process.on(signal, async () => {
+    await store.shutdown();
     await app.close();
     process.exit(0);
   });

@@ -4,7 +4,7 @@ import type { CalendarService } from "./calendar.js";
 import { LlmExtractor } from "./llmExtraction.js";
 import { buildSummary } from "./summary.js";
 import { extractQualificationHeuristics, qualificationMissingFields, toCompleteQualification, type QualificationDraft } from "./qualificationExtractor.js";
-import type { InMemoryCallStore } from "../store/inMemoryStore.js";
+import type { CallStore } from "../store/storeTypes.js";
 import type { ConversationFlow } from "./conversationFlow.js";
 
 const MAX_MISSES_PER_FIELD = 2;
@@ -47,7 +47,7 @@ export class VoiceConversationService {
   private readonly llmExtractor: LlmExtractor;
 
   public constructor(
-    private readonly store: InMemoryCallStore,
+    private readonly store: CallStore,
     private readonly calendar: CalendarService,
     private readonly config: VoiceConversationConfig
   ) {
@@ -57,9 +57,9 @@ export class VoiceConversationService {
     });
   }
 
-  public start(callId: string, profile: VoiceLeadProfile = {}): VoiceTurnResult {
+  public async start(callId: string, profile: VoiceLeadProfile = {}): Promise<VoiceTurnResult> {
     const startedAtMs = Date.now();
-    const session = this.getOrCreateSession(callId);
+    const session = await this.getOrCreateSession(callId);
     session.profile = { ...session.profile, ...profile };
     session.started = true;
 
@@ -67,14 +67,14 @@ export class VoiceConversationService {
     const nextField = missing[0] ?? "interestLevel";
     const opening = [...this.config.flow.opening, this.config.flow.questionByField[nextField]].join(" ");
 
-    this.store.addTurn(callId, {
+    await this.store.addTurn(callId, {
       speaker: "agent",
       text: opening,
       timestamp: new Date().toISOString()
     });
 
     const latencyMs = Date.now() - startedAtMs;
-    this.store.addVoiceLatency(callId, latencyMs);
+    await this.store.addVoiceLatency(callId, latencyMs);
     return {
       callId,
       agentUtterance: opening,
@@ -87,22 +87,22 @@ export class VoiceConversationService {
 
   public async next(callId: string, leadUtterance: string, profile: VoiceLeadProfile = {}, preferredSlotIso?: string): Promise<VoiceTurnResult> {
     const startedAtMs = Date.now();
-    const session = this.getOrCreateSession(callId);
+    const session = await this.getOrCreateSession(callId);
     session.profile = { ...session.profile, ...profile };
 
     if (!session.started) {
-      this.start(callId, session.profile);
+      await this.start(callId, session.profile);
     }
 
     if (session.completed) {
       const doneMessage = "Der Call ist bereits abgeschlossen. Wenn du willst, starte ich gerne einen neuen Termin-Check.";
-      this.store.addTurn(callId, {
+      await this.store.addTurn(callId, {
         speaker: "agent",
         text: doneMessage,
         timestamp: new Date().toISOString()
       });
       const latencyMs = Date.now() - startedAtMs;
-      this.store.addVoiceLatency(callId, latencyMs);
+      await this.store.addVoiceLatency(callId, latencyMs);
       return {
         callId,
         agentUtterance: doneMessage,
@@ -113,7 +113,7 @@ export class VoiceConversationService {
       };
     }
 
-    this.store.addTurn(callId, {
+    await this.store.addTurn(callId, {
       speaker: "lead",
       text: leadUtterance,
       timestamp: new Date().toISOString()
@@ -148,13 +148,13 @@ export class VoiceConversationService {
       const objectionHint = this.pickObjectionHint(leadUtterance);
       const prefix = fallbackNotice ?? "Verstanden, danke.";
       const followUp = `${prefix}${objectionHint ? ` ${objectionHint}` : ""} ${prompt}`.trim();
-      this.store.addTurn(callId, {
+      await this.store.addTurn(callId, {
         speaker: "agent",
         text: followUp,
         timestamp: new Date().toISOString()
       });
       const latencyMs = Date.now() - startedAtMs;
-      this.store.addVoiceLatency(callId, latencyMs);
+      await this.store.addVoiceLatency(callId, latencyMs);
       return {
         callId,
         agentUtterance: followUp,
@@ -181,7 +181,7 @@ export class VoiceConversationService {
       booking
     });
 
-    this.store.completeCall(callId, {
+    await this.store.completeCall(callId, {
       qualification,
       leadScore,
       booking,
@@ -195,14 +195,14 @@ export class VoiceConversationService {
       ? `Perfekt, Termin ist fuer ${booking.slotIso} reserviert. Ich sende dir die Details im Anschluss.`
       : `Danke fuer die Infos. Ich konnte den Termin noch nicht buchen: ${booking.reason ?? "unbekannter Grund"}.`;
 
-    this.store.addTurn(callId, {
+    await this.store.addTurn(callId, {
       speaker: "agent",
       text: closing,
       timestamp: new Date().toISOString()
     });
 
     const latencyMs = Date.now() - startedAtMs;
-    this.store.addVoiceLatency(callId, latencyMs);
+    await this.store.addVoiceLatency(callId, latencyMs);
     return {
       callId,
       agentUtterance: closing,
@@ -254,11 +254,11 @@ export class VoiceConversationService {
     }
 
     if (field === "hasAuthority") {
-      if (normalized === "1" || /^(ja|yes|yep|klar|genau)$/i.test(normalized)) {
-        return { hasAuthority: true };
-      }
-      if (normalized === "2" || /^(nein|no|nicht)$/i.test(normalized)) {
+      if (normalized === "2" || /\b(nein|no|nicht|keine)\b/i.test(normalized)) {
         return { hasAuthority: false };
+      }
+      if (normalized === "1" || /\b(ja|yes|yep|klar|genau|absolut|sicher)\b/i.test(normalized)) {
+        return { hasAuthority: true };
       }
       return {};
     }
@@ -336,13 +336,13 @@ export class VoiceConversationService {
     return undefined;
   }
 
-  private getOrCreateSession(callId: string): VoiceSession {
+  private async getOrCreateSession(callId: string): Promise<VoiceSession> {
     const existing = this.sessions.get(callId);
     if (existing) {
       return existing;
     }
 
-    const call = this.store.getCall(callId);
+    const call = await this.store.getCall(callId);
     const created: VoiceSession = {
       callId,
       profile: {},

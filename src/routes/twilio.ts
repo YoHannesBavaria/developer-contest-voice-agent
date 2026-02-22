@@ -36,7 +36,7 @@ export async function registerTwilioRoutes(
 
     const body = inboundSchema.parse(request.body);
     const callId = body.CallSid ?? randomUUID();
-    const start = voice.start(callId, {
+    const start = await voice.start(callId, {
       name: body.From,
       email: `${callId}@example.invalid`
     });

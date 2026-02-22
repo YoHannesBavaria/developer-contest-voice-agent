@@ -52,7 +52,16 @@ test("tracks conversion and drop-off KPIs", async ({ request, page }) => {
   expect(kpis.conversionRatePercent).toBe(50);
   expect(kpis.dropOffPoints[0].reason).toBe("Budget zu hoch");
 
+  const callsResponse = await request.get("/api/dashboard/calls?limit=10");
+  expect(callsResponse.ok()).toBeTruthy();
+  const calls = await callsResponse.json();
+  expect(calls.length).toBeGreaterThanOrEqual(2);
+
+  const bookingsResponse = await request.get("/api/dashboard/bookings?limit=10");
+  expect(bookingsResponse.ok()).toBeTruthy();
+  const bookings = await bookingsResponse.json();
+  expect(bookings.length).toBeGreaterThanOrEqual(1);
+
   await page.goto("/dashboard");
   await expect(page.locator("#conversion")).toHaveText("50%");
 });
-

@@ -19,7 +19,7 @@ const nextSchema = z.object({
 export async function registerVoiceRoutes(app: FastifyInstance, voice: VoiceConversationService): Promise<void> {
   app.post("/api/voice/start", async (request) => {
     const body = startSchema.parse(request.body);
-    return voice.start(body.callId, {
+    return await voice.start(body.callId, {
       name: body.leadName,
       email: body.leadEmail
     });
@@ -38,4 +38,3 @@ export async function registerVoiceRoutes(app: FastifyInstance, voice: VoiceConv
     );
   });
 }
-

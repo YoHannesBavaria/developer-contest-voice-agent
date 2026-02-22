@@ -3,6 +3,8 @@ import { z } from "zod";
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(3000),
+  CALL_STORE_PROVIDER: z.enum(["auto", "memory", "postgres"]).default("auto"),
+  DATABASE_URL: z.string().optional(),
   PUBLIC_BASE_URL: z.string().url().optional(),
   SAAS_PRODUCT_NAME: z.string().min(1).default("PipelinePilot"),
   DEMO_TIMEZONE: z.string().min(1).default("Europe/Berlin"),

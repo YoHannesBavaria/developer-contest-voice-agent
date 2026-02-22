@@ -19,7 +19,7 @@ describe("voice conversation anti-loop", () => {
 
   it("maps dtmf style urgency answer", async () => {
     const service = createService();
-    service.start("call-dtmf");
+    await service.start("call-dtmf");
 
     const result = await service.next("call-dtmf", "3");
     expect(result.captured.interestLevel).toBe("high");
@@ -28,7 +28,7 @@ describe("voice conversation anti-loop", () => {
 
   it("falls back and advances after repeated misses", async () => {
     const service = createService();
-    service.start("call-loop");
+    await service.start("call-loop");
 
     const first = await service.next("call-loop", "bla bla");
     expect(first.missingFields[0]).toBe("interestLevel");
@@ -37,5 +37,17 @@ describe("voice conversation anti-loop", () => {
     expect(second.captured.interestLevel).toBe("medium");
     expect(second.missingFields[0]).toBe("budgetMonthlyEur");
     expect(second.agentUtterance).toContain("Budget");
+  });
+
+  it("accepts natural yes answer for authority question", async () => {
+    const service = createService();
+    await service.start("call-auth");
+    await service.next("call-auth", "hoch");
+    await service.next("call-auth", "2200");
+    await service.next("call-auth", "40");
+    await service.next("call-auth", "4 wochen");
+
+    const result = await service.next("call-auth", "ja, bin ich");
+    expect(result.captured.hasAuthority).toBe(true);
   });
 });

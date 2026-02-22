@@ -3,8 +3,8 @@ import { z } from "zod";
 import { scoreLead } from "../domain/leadScoring.js";
 import type { Speaker } from "../domain/types.js";
 import { buildSummary } from "../services/summary.js";
-import type { InMemoryCallStore } from "../store/inMemoryStore.js";
 import type { CalendarService } from "../services/calendar.js";
+import type { CallStore } from "../store/storeTypes.js";
 
 const turnSchema = z.object({
   speaker: z.enum(["lead", "agent"]),
@@ -29,7 +29,7 @@ const completeSchema = z.object({
 });
 
 interface RegisterCallRoutesInput {
-  store: InMemoryCallStore;
+  store: CallStore;
   calendar: CalendarService;
   productName: string;
   timezone: string;
@@ -44,7 +44,7 @@ export async function registerCallRoutes(app: FastifyInstance, deps: RegisterCal
       text: body.text,
       timestamp: body.timestamp ?? new Date().toISOString()
     };
-    const call = deps.store.addTurn(callId, turn);
+    const call = await deps.store.addTurn(callId, turn);
     reply.code(202);
     return {
       callId,
@@ -75,7 +75,7 @@ export async function registerCallRoutes(app: FastifyInstance, deps: RegisterCal
       booking
     });
 
-    const call = deps.store.completeCall(callId, {
+    const call = await deps.store.completeCall(callId, {
       qualification: body.qualification,
       leadScore,
       booking,

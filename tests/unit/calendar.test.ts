@@ -24,6 +24,8 @@ describe("calcom calendar service", () => {
     const service = createCalendarService({
       NODE_ENV: "test",
       PORT: 3000,
+      CALL_STORE_PROVIDER: "memory",
+      DATABASE_URL: "",
       PUBLIC_BASE_URL: "http://localhost:3000",
       SAAS_PRODUCT_NAME: "PipelinePilot",
       DEMO_TIMEZONE: "Europe/Berlin",
@@ -68,6 +70,8 @@ describe("calcom calendar service", () => {
     const service = createCalendarService({
       NODE_ENV: "test",
       PORT: 3000,
+      CALL_STORE_PROVIDER: "memory",
+      DATABASE_URL: "",
       PUBLIC_BASE_URL: "http://localhost:3000",
       SAAS_PRODUCT_NAME: "PipelinePilot",
       DEMO_TIMEZONE: "Europe/Berlin",

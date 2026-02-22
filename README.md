@@ -33,10 +33,14 @@ Server:
 - `POST /api/providers/twilio/voice`
 - `POST /api/providers/twilio/gather`
 - `GET /api/dashboard/kpis`
+- `GET /api/dashboard/calls`
+- `GET /api/dashboard/bookings`
 - `GET /dashboard`
 
 ## Wichtige Env Variablen
 - `CALENDAR_PROVIDER=mock|calcom`
+- `CALL_STORE_PROVIDER=auto|memory|postgres`
+- `DATABASE_URL` (empfohlen fuer persistentes Tracking, z. B. Render Postgres)
 - `CALCOM_API_KEY` (nur fuer `calcom`)
 - `CALCOM_EVENT_TYPE_ID` (nur fuer `calcom`)
 - `CALCOM_API_VERSION` (empfohlen `2024-09-04`, benoetigt fuer Slot-Discovery via `/v2/slots`)
@@ -96,8 +100,9 @@ curl -X POST http://localhost:3000/api/voice/next \
 - `src/services/voiceConversation.ts`: Slot-Filling, Fragefolge, Auto-Completion.
 - `src/services/qualificationExtractor.ts`: heuristische Qualifikations-Extraktion.
 - `src/services/summary.ts`: strukturierte Summary-Erstellung.
-- `src/store/inMemoryStore.ts`: Session- und KPI-Speicher (MVP, in-memory).
-  - Hinweis: Daten sind nicht persistent und gehen bei Neustart/Deploy verloren.
+- `src/store/createCallStore.ts`: Store-Auswahl (`memory` oder `postgres`).
+- `src/store/inMemoryStore.ts`: fluechtiger Speicher fuer lokale Entwicklung.
+- `src/store/postgresStore.ts`: persistenter Speicher inkl. KPI-, Transcript- und Booking-Daten.
 - `config/conversation-flow.yaml`: Gespraechslogik/Prompt-Grundlage (wird zur Laufzeit geladen).
 
 ## Design-Entscheidungen
